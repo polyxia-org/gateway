@@ -1,0 +1,9 @@
+{
+    "intent": "LightOn",
+    "utterances": [
+      "lumière",
+      "allume la lumière",
+      "aziz lumière",
+      "allume la lampe"
+    ]
+  }
