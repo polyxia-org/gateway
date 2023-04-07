@@ -9,7 +9,7 @@ curl -X POST \
   http://localhost:8080/skills \
   -H 'Content-Type: multipart/form-data' \
   -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
+  -F 'intents_json=@./test_data/intent.json' \
   -F 'function_archive=@./test_data/lightOn.zip'
 ```
 
@@ -61,6 +61,11 @@ aws --endpoint-url=http://localhost:9000 s3 mb s3://functions
 make start
 ```
 
+4. Run the NLU API
+```bash
+# TODO when the NLU API is ready
+```
+
 ### Use the API gateway
 
 1. Create a new skill using the Morty CLI:
@@ -77,13 +82,33 @@ morty function init lightOn
 zip -r lightOn.zip lightOn
 ```
 
-2. Send a POST request with 2 files to the API gateway:
+2. Write an `intent.json` to `./test_data`
+
+The json should look like this:
+```json
+{
+    "intent": "say_hello",
+    "utterances": [
+        "Say hello to {{name}}",
+        "Hello {{name}}",
+        "Hi {{name}}"
+    ],
+    "slots": [
+        {
+            "type": "string",
+            "id": "name"
+        }
+    ]
+}
+```
+
+3. Send a POST request with 2 files to the API gateway:
 
 ```bash
 curl -X POST \
   http://localhost:8080/skills \
   -H 'Content-Type: multipart/form-data' \
   -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
+  -F 'intents_json=@./test_data/intent.json' \
   -F 'function_archive=@./test_data/lightOn.zip'
 ```

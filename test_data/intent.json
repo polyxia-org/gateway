@@ -1,0 +1,14 @@
+{
+  "intent": "say_hello",
+  "utterances": [
+      "Say hello to {{name}}",
+      "Hello {{name}}",
+      "Hi {{name}}"
+  ],
+  "slots": [
+      {
+          "type": "string",
+          "id": "name"
+      }
+  ]
+}

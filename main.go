@@ -12,13 +12,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081"
+const DEFAULT_NLU_API_ENDPOINT = "http://localhost:8082"
+const MORTY_API_ENDPOINT_ENV_VAR = "MORTY_API_ENDPOINT"
+const NLU_API_ENDPOINT_ENV_VAR = "NLU_API_ENDPOINT"
+const SKILLS_ENDPOINT = "/skills"
+
 func main() {
-	MORTY_API_ENDPOINT := getEnv("MORTY_API_ENDPOINT", "http://localhost:8081")
-	// NLU_API_ENDPOINT := getEnv("NLU_API_ENDPOINT", "http://localhost:8081")
+	MORTY_API_ENDPOINT := getEnv(MORTY_API_ENDPOINT_ENV_VAR, DEFAULT_MORTY_API_ENDPOINT)
+	NLU_API_ENDPOINT := getEnv(NLU_API_ENDPOINT_ENV_VAR, DEFAULT_NLU_API_ENDPOINT)
 
 	router := gin.Default()
 
-	router.POST("/skills", func(c *gin.Context) {
+	router.POST(SKILLS_ENDPOINT, func(c *gin.Context) {
 		/* Get name param */
 		name := c.PostForm("name")
 		log.Printf("name: %s", name)
@@ -35,18 +41,17 @@ func main() {
 			log.Printf(mortyFunctionRegistryResp.Status)
 			log.Fatal(err)
 		}
-		/*
-			TODO: handle intents_json
-			nluResp, err := handleIntentsJSON(NLU_API_ENDPOINT, c, name)
-			if err != nil {
-				log.Printf("handleIntentsJSON")
-				log.Fatal(err)
-			}
 
-			if nluResp.StatusCode != http.StatusCreated {
-				log.Printf(nluResp.Status)
-				log.Fatal(err)
-			} */
+		nluResp, err := handleIntentsJSON(NLU_API_ENDPOINT, c, name)
+		if err != nil {
+			log.Printf("handleIntentsJSON")
+			log.Fatal(err)
+		}
+
+		if nluResp.StatusCode != http.StatusCreated {
+			log.Printf(nluResp.Status)
+			log.Fatal(err)
+		}
 
 		c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": "Skill successfully created!"})
 	})
@@ -81,27 +86,23 @@ func handleIntentsJSON(NLU_API_ENDPOINT string, c *gin.Context, name string) (*h
 		http://localhost:8082/v1/intents \
 		-H 'Content-Type: application/json' \
 		-d '{
-			"name": "lighton",
-			"intents_json": {
-				"intent": "LightOn",
-				"utterances": [
-				"lumière",
-				"allume la lumière",
-				"aziz lumière",
-				"allume la lampe"
-			}
+			"intent": "say_hello",
+			"utterances": [
+				"Say hello to {{name}}",
+				"Hello {{name}}",
+				"Hi {{name}}"
+			],
+			"slots": [
+				{
+					"type": "string",
+					"id": "name"
+				}
+			]
 		}'
 	*/
-	// Build json body
-	jsonBody := new(bytes.Buffer)
-	jsonBody.WriteString(`{"name":"`)
-	jsonBody.WriteString(name)
-	jsonBody.WriteString(`","intents_json":`)
-	jsonBody.Write(intentsJson.Bytes())
-	jsonBody.WriteString(`}`)
 
 	// Send intentsJson to NLU
-	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+"/v1/intents", jsonBody)
+	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+"/v1/intents", intentsJson)
 	if err != nil {
 		log.Printf("NewRequest")
 		log.Fatal(err)
