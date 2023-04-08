@@ -6,7 +6,7 @@ By recieving a POST request like this:
 
 ```bash
 curl -X POST \
-  http://localhost:8080/skills \
+  http://localhost:8080/v1/skills \
   -H 'Content-Type: multipart/form-data' \
   -F 'name=lighton' \
   -F 'intents_json=@./test_data/intent.json' \
@@ -35,8 +35,8 @@ Flow without NLU:
 
 ```bash
 # Example values
-export MORTY_API_ENDPOINT="http://localhost:8081/"
-export NLU_API_ENDPOINT="http://localhost:8082/"
+export MORTY_API_ENDPOINT="http://localhost:8081/v1/functions/build"
+export NLU_API_ENDPOINT="http://localhost:8082/v1/skills"
 ```
 
 2. Run the API gateway with the following command:
@@ -87,26 +87,28 @@ zip -r lightOn.zip lightOn
 The json should look like this:
 ```json
 {
-    "intent": "say_hello",
     "utterances": [
-        "Say hello to {{name}}",
-        "Hello {{name}}",
-        "Hi {{name}}"
+      "météo",
+      "donne moi la météo",
+      "quel temps fait-il aujourd'hui à [ Paris | Montpellier ] ?",
+      "est ce qu'il pleut ?",
+      "est-ce qu'il fait beau ?",
+      "Y a t'il du soleil ?",
+      "Quelle est la météo actuelle ?"
     ],
     "slots": [
-        {
-            "type": "string",
-            "id": "name"
-        }
+      {
+        "type": "place_name"
+      }
     ]
-}
+  }
 ```
 
 3. Send a POST request with 2 files to the API gateway:
 
 ```bash
 curl -X POST \
-  http://localhost:8080/skills \
+  http://localhost:8080/v1/skills \
   -H 'Content-Type: multipart/form-data' \
   -F 'name=lighton' \
   -F 'intents_json=@./test_data/intent.json' \

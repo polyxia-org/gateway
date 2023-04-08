@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"mime/multipart"
@@ -12,11 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081"
-const DEFAULT_NLU_API_ENDPOINT = "http://localhost:8082"
+const DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081/v1/functions/build"
+const DEFAULT_NLU_API_ENDPOINT = "http://localhost:8082/v1/skills"
 const MORTY_API_ENDPOINT_ENV_VAR = "MORTY_API_ENDPOINT"
 const NLU_API_ENDPOINT_ENV_VAR = "NLU_API_ENDPOINT"
-const SKILLS_ENDPOINT = "/skills"
+const SKILLS_ENDPOINT = "v1/skills"
 
 func main() {
 	MORTY_API_ENDPOINT := getEnv(MORTY_API_ENDPOINT_ENV_VAR, DEFAULT_MORTY_API_ENDPOINT)
@@ -31,17 +32,6 @@ func main() {
 		// lowercase name to match morty registry compliance
 		name = strings.ToLower(name)
 
-		mortyFunctionRegistryResp, err := handleArchive(MORTY_API_ENDPOINT, c, name)
-		if err != nil {
-			log.Printf("handleArchive")
-			log.Fatal(err)
-		}
-
-		if mortyFunctionRegistryResp.StatusCode != http.StatusOK {
-			log.Printf(mortyFunctionRegistryResp.Status)
-			log.Fatal(err)
-		}
-
 		nluResp, err := handleIntentsJSON(NLU_API_ENDPOINT, c, name)
 		if err != nil {
 			log.Printf("handleIntentsJSON")
@@ -50,6 +40,17 @@ func main() {
 
 		if nluResp.StatusCode != http.StatusCreated {
 			log.Printf(nluResp.Status)
+			log.Fatal(err)
+		}
+
+		mortyFunctionRegistryResp, err := handleArchive(MORTY_API_ENDPOINT, c, name)
+		if err != nil {
+			log.Printf("handleArchive")
+			log.Fatal(err)
+		}
+
+		if mortyFunctionRegistryResp.StatusCode != http.StatusOK {
+			log.Printf(mortyFunctionRegistryResp.Status)
 			log.Fatal(err)
 		}
 
@@ -80,29 +81,14 @@ func handleIntentsJSON(NLU_API_ENDPOINT string, c *gin.Context, name string) (*h
 	defer intentsJsonFile.Close()
 	intentsJson := new(bytes.Buffer)
 	intentsJson.ReadFrom(intentsJsonFile)
-	// POST the json
-	/*
-		curl -X POST \
-		http://localhost:8082/v1/intents \
-		-H 'Content-Type: application/json' \
-		-d '{
-			"intent": "say_hello",
-			"utterances": [
-				"Say hello to {{name}}",
-				"Hello {{name}}",
-				"Hi {{name}}"
-			],
-			"slots": [
-				{
-					"type": "string",
-					"id": "name"
-				}
-			]
-		}'
-	*/
+	// Map Byte Buffer to JSON
+	var intents map[string]interface{}
+	json.Unmarshal(intentsJson.Bytes(), &intents)
+	// Add intent name to ensure the same name is used in NLU and Morty
+	intents["intent"] = name
 
 	// Send intentsJson to NLU
-	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+"/v1/intents", intentsJson)
+	req, err := http.NewRequest("POST", NLU_API_ENDPOINT, intentsJson)
 	if err != nil {
 		log.Printf("NewRequest")
 		log.Fatal(err)
@@ -157,7 +143,7 @@ func handleArchive(MORTY_API_ENDPOINT string, c *gin.Context, name string) (*htt
 	w.Close()
 
 	// Send function_archive to Morty Function Registry
-	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+"/v1/functions/build", &b)
+	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT, &b)
 	if err != nil {
 		log.Printf("NewRequest")
 		log.Fatal(err)
