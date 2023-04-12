@@ -13,8 +13,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081/v1/functions/build"
-const DEFAULT_NLU_API_ENDPOINT = "http://localhost:8082/v1/skills"
+const DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081/v1"
+const MORTY_FUNCTIONS_BUILD_ENDPOINT = "/functions/build"
+const DEFAULT_NLU_API_ENDPOINT = "http://localhost:8082/v1"
+const NLU_SKILLS_ENDPOINT = "/skills"
 const MORTY_API_ENDPOINT_ENV_VAR = "MORTY_API_ENDPOINT"
 const NLU_API_ENDPOINT_ENV_VAR = "NLU_API_ENDPOINT"
 const SKILLS_ENDPOINT = "v1/skills"
@@ -83,12 +85,19 @@ func handleIntentsJSON(NLU_API_ENDPOINT string, c *gin.Context, name string) (*h
 	intentsJson.ReadFrom(intentsJsonFile)
 	// Map Byte Buffer to JSON
 	var intents map[string]interface{}
+	// Unmarshal the JSON data into the intents map
 	json.Unmarshal(intentsJson.Bytes(), &intents)
 	// Add intent name to ensure the same name is used in NLU and Morty
 	intents["intent"] = name
+	// Convert the modified Go value back to JSON format
+	intentsJson.Reset()
+	if err := json.NewEncoder(intentsJson).Encode(intents); err != nil {
+		log.Fatal(err)
+	}
+	println(intentsJson.String())
 
 	// Send intentsJson to NLU
-	req, err := http.NewRequest("POST", NLU_API_ENDPOINT, intentsJson)
+	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+NLU_SKILLS_ENDPOINT, intentsJson)
 	if err != nil {
 		log.Printf("NewRequest")
 		log.Fatal(err)
@@ -143,7 +152,7 @@ func handleArchive(MORTY_API_ENDPOINT string, c *gin.Context, name string) (*htt
 	w.Close()
 
 	// Send function_archive to Morty Function Registry
-	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT, &b)
+	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+MORTY_FUNCTIONS_BUILD_ENDPOINT, &b)
 	if err != nil {
 		log.Printf("NewRequest")
 		log.Fatal(err)

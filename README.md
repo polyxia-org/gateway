@@ -35,8 +35,8 @@ Flow without NLU:
 
 ```bash
 # Example values
-export MORTY_API_ENDPOINT="http://localhost:8081/v1/functions/build"
-export NLU_API_ENDPOINT="http://localhost:8082/v1/skills"
+export MORTY_API_ENDPOINT="http://localhost:8081/v1"
+export NLU_API_ENDPOINT="http://localhost:8082/v1"
 ```
 
 2. Run the API gateway with the following command:
@@ -62,9 +62,8 @@ make start
 ```
 
 4. Run the NLU API
-```bash
-# TODO when the NLU API is ready
-```
+
+Follow the instructions here: https://github.com/polyxia-org/nlu/ (branch `improved-nlu` 9th April 2023)
 
 ### Use the API gateway
 
