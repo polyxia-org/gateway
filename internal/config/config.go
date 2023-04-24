@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081/v1"
-	DEFAULT_NLU_API_ENDPOINT   = "http://localhost:8082/v1"
+	DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081"
+	DEFAULT_NLU_API_ENDPOINT   = "http://localhost:8082"
 	DEFAULT_ADDRESS            = "0.0.0.0"
 	DEFAULT_PORT               = 8080
 )
