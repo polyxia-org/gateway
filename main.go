@@ -23,7 +23,6 @@ func main() {
 	}
 	log.SetLevel(level)
 
-	// Run the registry HTTP server
 	gw, err := gateway.NewServer()
 	if err != nil {
 		log.Fatalf("failed to initialize the gateway: %v", err)
