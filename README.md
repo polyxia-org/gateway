@@ -2,20 +2,9 @@
 
 The goal of this project is to provide a simple API gateway for **creating skills**.
 
-By recieving a POST request like this:
-
-```bash
-curl -X POST \
-  http://localhost:8080/skills \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
-  -F 'function_archive=@./test_data/lightOn.zip'
-```
-
-The gateway will:
-- Create a new functions with the Morty Function Registry
-- Create a new skill with the NLU API
+The gateway:
+- Creates a new functions with the Morty Function Registry
+- Creates a new skill with the NLU API
 
 **Today, the gate do not "Create a new skill with the NLU API"** because the NLU API is not ready yet. 
 
@@ -35,8 +24,10 @@ Flow without NLU:
 
 ```bash
 # Example values
-export MORTY_API_ENDPOINT="http://localhost:8081/"
-export NLU_API_ENDPOINT="http://localhost:8082/"
+export POLYXIA_GATEWAY_MORTY_API_ENDPOINT="http://localhost:8081/v1"
+export POLYXIA_GATEWAY_NLU_API_ENDPOINT="http://localhost:8082/v1"
+export POLYXIA_GATEWAY_MORTY_ADDR="localhost"
+export POLYXIA_GATEWAY_MORTY_PORT="8080"
 ```
 
 2. Run the API gateway with the following command:
@@ -61,6 +52,10 @@ aws --endpoint-url=http://localhost:9000 s3 mb s3://functions
 make start
 ```
 
+4. Run the NLU API
+
+Follow the instructions here: https://github.com/polyxia-org/nlu/
+
 ### Use the API gateway
 
 1. Create a new skill using the Morty CLI:
@@ -77,13 +72,37 @@ morty function init lightOn
 zip -r lightOn.zip lightOn
 ```
 
-2. Send a POST request with 2 files to the API gateway:
+2. Write an `intent.json` to `./test_data`
+
+The json should look like this:
+```json
+{
+    "utterances": [
+      "météo",
+      "donne moi la météo",
+      "quel temps fait-il aujourd'hui à [ Paris | Montpellier ] ?",
+      "est ce qu'il pleut ?",
+      "est-ce qu'il fait beau ?",
+      "Y a t'il du soleil ?",
+      "Quelle est la météo actuelle ?"
+    ],
+    "slots": [
+      {
+        "type": "place_name"
+      }
+    ]
+  }
+```
+
+3. Send a POST request with 2 files to the API gateway:
 
 ```bash
 curl -X POST \
-  http://localhost:8080/skills \
+  http://localhost:8080/v1/skills \
   -H 'Content-Type: multipart/form-data' \
   -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
+  -F 'intents_json=@./test_data/intent.json' \
   -F 'function_archive=@./test_data/lightOn.zip'
 ```
+
+For more information, see the [OpenAPI spec](./openapi.yml).
