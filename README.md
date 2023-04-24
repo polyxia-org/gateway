@@ -54,7 +54,7 @@ make start
 
 4. Run the NLU API
 
-Follow the instructions here: https://github.com/polyxia-org/nlu/ (branch `improved-nlu` 9th April 2023)
+Follow the instructions here: https://github.com/polyxia-org/nlu/
 
 ### Use the API gateway
 

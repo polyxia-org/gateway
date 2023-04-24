@@ -27,9 +27,9 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 
 	/* Get name param */
 	name := r.PostFormValue("name")
+	// lowercase name to match morty registry compliance
 	name = strings.ToLower(name)
 	log.Debugf("name: %s", name)
-	// lowercase name to match morty registry compliance
 
 	nluResp, err := handleIntentsJSON(s.cfg.NluApiEndpoint, r, name)
 	if err != nil {
