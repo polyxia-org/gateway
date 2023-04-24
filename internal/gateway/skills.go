@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	MORTY_FUNCTIONS_BUILD_ENDPOINT = "/functions/build"
+	MORTY_FUNCTIONS_BUILD_ENDPOINT = "/v1/functions/build"
 	NLU_SKILLS_ENDPOINT            = "/v1/skills"
 )
 
@@ -24,13 +24,13 @@ var (
 )
 
 func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
-
 	/* Get name param */
 	name := r.PostFormValue("name")
 	// lowercase name to match morty registry compliance
 	name = strings.ToLower(name)
 	log.Debugf("name: %s", name)
 
+	log.Debugf("handling intents_json (NLU)")
 	nluResp, err := handleIntentsJSON(s.cfg.NluApiEndpoint, r, name)
 	if err != nil {
 		log.Debugf("handleIntentsJSON", nluResp.Status)
@@ -47,6 +47,7 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debugf("handling archive (Morty)")
 	mortyFunctionRegistryResp, err := handleArchive(s.cfg.MortyApiEndpoint, r, name)
 	if err != nil {
 		log.Error(err)
@@ -155,7 +156,7 @@ func handleArchive(MORTY_API_ENDPOINT string, r *http.Request, name string) (*ht
 	w.Close()
 
 	// Send function_archive to Morty Function Registry
-	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+"/v1"+MORTY_FUNCTIONS_BUILD_ENDPOINT, &b)
+	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+MORTY_FUNCTIONS_BUILD_ENDPOINT, &b)
 	if err != nil {
 		return nil, err
 	}
