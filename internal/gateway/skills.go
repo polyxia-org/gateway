@@ -71,6 +71,8 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Infof("Skill created successfully: %s", name)
+
 	s.JSONResponse(w, http.StatusOK, APISucess{
 		StatusCode: http.StatusOK,
 		Message:    "Skill created successfully",
