@@ -56,12 +56,12 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 	if mortyFunctionRegistryResp.StatusCode != http.StatusOK {
 		log.Warnf("Morty registry creation failed!")
 		// undo NLU skill creation with DELETE /v1/skills/:name
-		req, _ := http.NewRequest("DELETE", s.cfg.NluApiEndpoint+NLU_SKILLS_ENDPOINT+"/"+name, nil)
+		req, _ := http.NewRequest("DELETE", s.cfg.NluApiEndpoint+"/v1"+NLU_SKILLS_ENDPOINT+"/"+name, nil)
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
 		_, err := client.Do(req)
 		if err != nil {
-			log.Debugf("DELETE", s.cfg.NluApiEndpoint+NLU_SKILLS_ENDPOINT+"/"+name)
+			log.Debugf("DELETE", s.cfg.NluApiEndpoint+"/v1"+NLU_SKILLS_ENDPOINT+"/"+name)
 		}
 		log.Debugf(mortyFunctionRegistryResp.Status)
 		bodyBuf := new(bytes.Buffer)
@@ -106,7 +106,7 @@ func handleIntentsJSON(NLU_API_ENDPOINT string, r *http.Request, name string) (*
 	}
 
 	// Send intentsJson to NLU
-	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+NLU_SKILLS_ENDPOINT, intentsJson)
+	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+"/v1"+NLU_SKILLS_ENDPOINT, intentsJson)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func handleArchive(MORTY_API_ENDPOINT string, r *http.Request, name string) (*ht
 	w.Close()
 
 	// Send function_archive to Morty Function Registry
-	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+MORTY_FUNCTIONS_BUILD_ENDPOINT, &b)
+	req, err := http.NewRequest("POST", MORTY_API_ENDPOINT+"/v1"+MORTY_FUNCTIONS_BUILD_ENDPOINT, &b)
 	if err != nil {
 		return nil, err
 	}

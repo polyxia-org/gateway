@@ -16,7 +16,21 @@ const (
 
 func (s *Server) HealthcheckHandler(w http.ResponseWriter, _ *http.Request) {
 
-	// TODO: Add healthcheck logic here for morty and nlu api
+	// check is morty is up
+	_, err := http.Get(s.cfg.MortyApiEndpoint + "/healthz")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(&healthcheck{Status: outOfService})
+		return
+	}
+
+	// check is rick is up
+	_, err = http.Get(s.cfg.NluApiEndpoint + "/docs")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(&healthcheck{Status: outOfService})
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&healthcheck{Status: up})
