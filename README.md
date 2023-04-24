@@ -26,8 +26,8 @@ Flow without NLU:
 # Example values
 export POLYXIA_GATEWAY_MORTY_API_ENDPOINT="http://localhost:8081"
 export POLYXIA_GATEWAY_NLU_API_ENDPOINT="http://localhost:8082"
-export POLYXIA_GATEWAY_MORTY_ADDR="localhost"
-export POLYXIA_GATEWAY_MORTY_PORT="8080"
+export POLYXIA_GATEWAY_ADDR="localhost"
+export POLYXIA_GATEWAY_PORT="8080"
 ```
 
 2. Run the API gateway with the following command:
@@ -56,7 +56,7 @@ make start
 
 Follow the instructions here: https://github.com/polyxia-org/nlu/
 
-### Use the API gateway
+### Create a new skill
 
 1. Create a new skill using the Morty CLI:
     
@@ -106,3 +106,14 @@ curl -X POST \
 ```
 
 For more information, see the [OpenAPI spec](./openapi.yml).
+
+### Run the skill
+
+1. Run the skill using the Morty CLI:
+
+```bash
+curl -X POST \
+  http://localhost:8080/v1/nlu \
+  -H 'Content-Type: application/json' \
+  -d '{"input_text": "quelle est la météo ?"}'
+```

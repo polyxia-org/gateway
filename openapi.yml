@@ -3,6 +3,22 @@ info:
   title: Gateway API
   version: 1.0.0
 paths:
+  /nlu:
+    post:
+      summary: Send a payload to recieve a response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskPayload'
+      responses:
+        '200':
+          description: NLU return the response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NLUResponse'
   /skills:
     post:
       summary: Create a new skill
@@ -39,6 +55,16 @@ paths:
                 $ref: '#/components/schemas/APIError'
 components:
   schemas:
+    AskPayload:
+      type: object
+      properties:
+        input_text:
+          type: string
+    NLUResponse:
+      type: object
+      properties:
+        response:
+          type: string
     APIError:
       type: object
       properties:

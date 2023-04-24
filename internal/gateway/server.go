@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	HEALTH_ENDPOINT = "/healthz"
-	SKILLS_ENDPOINT = "/v1/skills"
+	HEALTH_ENDPOINT        = "/healthz"
+	SKILLS_ENDPOINT        = "/v1/skills"
+	DEVICE_DEMAND_ENDPOINT = "/v1/nlu"
 )
 
 type (
@@ -53,10 +54,11 @@ func NewServer() (*Server, error) {
 
 func (s *Server) Serve() {
 	p := s.cfg.Port
+	h := s.cfg.Addr
 
 	ctx, stop := context.WithCancel(context.Background())
 	server := &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", p),
+		Addr:    fmt.Sprintf("%s:%d", h, p),
 		Handler: s.router(),
 	}
 
@@ -84,7 +86,7 @@ func (s *Server) Serve() {
 		stop()
 	}()
 
-	log.Printf("polyxia gateway is listening on 0.0.0.0:%d\n", p)
+	log.Printf("polyxia gateway is listening on %s:%d\n", h, p)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
@@ -98,6 +100,7 @@ func (s *Server) router() http.Handler {
 	r.Use(middleware.RequestID)
 
 	r.Post(SKILLS_ENDPOINT, s.SkillsHandler)
+	r.Post(DEVICE_DEMAND_ENDPOINT, s.DeviceDemandHandler)
 	r.Get(HEALTH_ENDPOINT, s.HealthcheckHandler)
 
 	return r
