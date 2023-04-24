@@ -31,7 +31,7 @@ func Load() (*Config, error) {
 
 		// Enable automatic environment variables lookup
 		EnvEnabled: true,
-		EnvPrefix:  "POLYXIA_GATEWAY_",
+		EnvPrefix:  "POLYXIA_GATEWAY",
 
 		Default: &Config{
 			MortyApiEndpoint: DEFAULT_MORTY_API_ENDPOINT,
