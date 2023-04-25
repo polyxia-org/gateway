@@ -30,10 +30,10 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 	name = strings.ToLower(name)
 	log.Debugf("name: %s", name)
 
-	log.Debugf("handling intents_json (NLU)")
+	log.Debugf("Handling skill creation on NLU")
 	nluResp, err := handleIntentsJSON(s.cfg.NluApiEndpoint, r, name)
 	if err != nil {
-		log.Debugf("handleIntentsJSON", nluResp.Status)
+		log.Errorf("Handling skill creation on NLU failed:", nluResp.Status)
 		s.APIErrorResponse(w, makeAPIError(http.StatusInternalServerError, err))
 		return
 	}
@@ -47,7 +47,7 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debugf("handling archive (Morty)")
+	log.Debugf("Handling skill creation on Morty")
 	mortyFunctionRegistryResp, err := handleArchive(s.cfg.MortyApiEndpoint, r, name)
 	if err != nil {
 		log.Error(err)
@@ -57,6 +57,7 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 	if mortyFunctionRegistryResp.StatusCode != http.StatusOK {
 		log.Warnf("Morty registry creation failed!")
 		// undo NLU skill creation with DELETE /v1/skills/:name
+		log.Debugf("Undoing NLU skill creation with DELETE /v1/skills/:name")
 		req, _ := http.NewRequest("DELETE", s.cfg.NluApiEndpoint+NLU_SKILLS_ENDPOINT+"/"+name, nil)
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
