@@ -131,6 +131,7 @@ ingredient
 transport_descriptor
 playlist_name
 radio_name
+```
 
 1. Create a new skill using the Morty CLI:
     
