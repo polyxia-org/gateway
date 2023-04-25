@@ -56,6 +56,16 @@ make start
 
 Follow the instructions here: https://github.com/polyxia-org/nlu/
 
+Example instructions:
+```bash
+cd ..
+git clone https://github.com/polyxia-org/nlu
+cd nlu
+git pull -r
+docker run -d --rm --pull always -p 8000:8000 surrealdb/surrealdb:latest start --pass root
+poetry run python nlu/app.py
+```
+
 ### Create a new skill
 
 1. Create a new skill using the Morty CLI:

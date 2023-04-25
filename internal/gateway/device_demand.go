@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -32,53 +31,48 @@ func (s *Server) DeviceDemandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the payload to NLU service
-	responseBody := SendToNLU(s.cfg.NluApiEndpoint, r.Body)
-
-	// Create the response object
-	nluResponse := NLUResponse{Body: responseBody}
-
-	// Marshal the response object
-	responseBytes, err := json.Marshal(nluResponse)
+	responseBody, err := getRespFromNLU(s.cfg.NluApiEndpoint, r.Body)
 	if err != nil {
+		log.Errorf("Error getting response from NLU: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error marshaling NLUResponse object."))
+		w.Write([]byte("Error getting response from NLU."))
 		return
 	}
 
 	// Send the response to the device
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responseBytes)
+	w.Write(responseBody)
 }
 
-func SendToNLU(NLU_API_ENDPOINT string, inputBody io.Reader) string {
+func getRespFromNLU(nluApiEndpoint string, inputBody io.Reader) ([]byte, error) {
 	if inputBody != nil {
+		// only for debugging
 		bodyBytes, err := ioutil.ReadAll(inputBody)
 		if err != nil {
-			return err.Error()
+			return nil, err
 		}
 		log.Debugf("bodyBytes: %s", string(bodyBytes))
 	}
 
-	// Send intentsJson to NLU
-	req, err := http.NewRequest("POST", NLU_API_ENDPOINT+NLU_PATH, inputBody)
+	// Send json to NLU
+	req, err := http.NewRequest("POST", nluApiEndpoint+NLU_PATH, inputBody)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	// Send intentsJson to NLU
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	responseBodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
-	return string(body)
+	return responseBodyBytes, nil
 }
