@@ -1,0 +1,16 @@
+{
+    "utterances": [
+      "météo",
+      "donne moi la météo",
+      "quel temps fait-il aujourd'hui à [ Paris | Montpellier ] ?",
+      "est ce qu'il pleut ?",
+      "est-ce qu'il fait beau ?",
+      "Y a t'il du soleil ?",
+      "Quelle est la météo actuelle ?"
+    ],
+    "slots": [
+      {
+        "type": "place_name"
+      }
+    ]
+  }

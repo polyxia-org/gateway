@@ -2,20 +2,9 @@
 
 The goal of this project is to provide a simple API gateway for **creating skills**.
 
-By recieving a POST request like this:
-
-```bash
-curl -X POST \
-  http://localhost:8080/skills \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
-  -F 'function_archive=@./test_data/lightOn.zip'
-```
-
-The gateway will:
-- Create a new functions with the Morty Function Registry
-- Create a new skill with the NLU API
+The gateway:
+- Creates a new functions with the Morty Function Registry
+- Creates a new skill with the NLU API
 
 **Today, the gate do not "Create a new skill with the NLU API"** because the NLU API is not ready yet. 
 
@@ -35,8 +24,10 @@ Flow without NLU:
 
 ```bash
 # Example values
-export MORTY_API_ENDPOINT="http://localhost:8081/"
-export NLU_API_ENDPOINT="http://localhost:8082/"
+export POLYXIA_GATEWAY_MORTY_API_ENDPOINT="http://localhost:8081"
+export POLYXIA_GATEWAY_NLU_API_ENDPOINT="http://localhost:8082"
+export POLYXIA_GATEWAY_ADDR="localhost"
+export POLYXIA_GATEWAY_PORT="8080"
 ```
 
 2. Run the API gateway with the following command:
@@ -61,35 +52,21 @@ aws --endpoint-url=http://localhost:9000 s3 mb s3://functions
 make start
 ```
 
-### Use the API gateway
+4. Run the NLU API
 
-1. Create a new skill using the Morty CLI:
-    
+Follow the instructions here: https://github.com/polyxia-org/nlu/
+
+Example instructions:
 ```bash
-cd ./test_data
-# Install the CLI by following the instructions here
-# download from https://github.com/polyxia-org/morty-cli/releases/download/v1.0.0/morty-v1.0.0-linux-amd64.tar.gz
-tar -xvf morty.tar.gz
-sudo mv morty /usr/local/bin
-
-# Create a new skill
-morty function init lightOn
-zip -r lightOn.zip lightOn
+cd ..
+git clone https://github.com/polyxia-org/nlu
+cd nlu
+git pull -r
+docker run -d --rm --pull always -p 8000:8000 surrealdb/surrealdb:latest start --pass root
+poetry run python nlu/app.py
 ```
 
-2. Send a POST request with 2 files to the API gateway:
-
-```bash
-curl -X POST \
-  http://localhost:8080/skills \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'name=lighton' \
-  -F 'intents_json=@./test_data/intents.json' \
-  -F 'function_archive=@./test_data/lightOn.zip'
-```
-
-# Usage
-Important note when using the gateway.
+### Create a new skill
 
 When creating new skills. You have to know that the intent name should be chosen wisely. The intent name will be used to make the right choice of function to use in the NLU.
 The intent name should be explicit and use underscores to separate words.
@@ -154,4 +131,63 @@ ingredient
 transport_descriptor
 playlist_name
 radio_name
+
+1. Create a new skill using the Morty CLI:
+    
+```bash
+cd ./test_data
+# Install the CLI by following the instructions here
+# download from https://github.com/polyxia-org/morty-cli/releases/download/v1.0.0/morty-v1.0.0-linux-amd64.tar.gz
+tar -xvf morty.tar.gz
+sudo mv morty /usr/local/bin
+
+# Create a new skill
+morty function init lightOn
+zip -r lightOn.zip lightOn
+```
+
+2. Write an `intent.json` to `./test_data`
+
+The json should look like this:
+```json
+{
+    "utterances": [
+      "météo",
+      "donne moi la météo",
+      "quel temps fait-il aujourd'hui à [ Paris | Montpellier ] ?",
+      "est ce qu'il pleut ?",
+      "est-ce qu'il fait beau ?",
+      "Y a t'il du soleil ?",
+      "Quelle est la météo actuelle ?"
+    ],
+    "slots": [
+      {
+        "type": "place_name"
+      }
+    ]
+  }
+```
+
+3. Send a POST request with 2 files to the API gateway:
+
+```bash
+curl -X POST \
+  http://localhost:8080/v1/skills \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'name=lighton' \
+  -F 'intents_json=@./test_data/intent.json' \
+  -F 'function_archive=@./test_data/lightOn.zip'
+```
+
+For more information, see the [OpenAPI spec](./openapi.yml).
+
+### Run the skill
+
+1. Run the skill using the Morty CLI:
+
+```bash
+curl -X POST \
+  http://localhost:8080/v1/nlu \
+  -H 'Content-Type: application/json' \
+  -d '{"input_text": "quelle est la météo ?"}'
 ```
