@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	NLU_PATH = "/v1/nlu"
+	NLU_PATH = "/v1/nlu/"
 )
 
 // Payload is the input data structure for the request
@@ -46,16 +46,9 @@ func (s *Server) DeviceDemandHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getRespFromNLU(nluApiEndpoint string, inputBody io.Reader) ([]byte, error) {
-	if inputBody != nil {
-		// only for debugging
-		bodyBytes, err := ioutil.ReadAll(inputBody)
-		if err != nil {
-			return nil, err
-		}
-		log.Debugf("bodyBytes: %s", string(bodyBytes))
-	}
 
 	// Send json to NLU
+	log.Debugf("Sending request to NLU: %s", nluApiEndpoint+NLU_PATH)
 	req, err := http.NewRequest("POST", nluApiEndpoint+NLU_PATH, inputBody)
 	if err != nil {
 		return nil, err
