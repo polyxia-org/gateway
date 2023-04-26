@@ -7,17 +7,19 @@ import (
 )
 
 const (
-	DEFAULT_MORTY_API_ENDPOINT = "http://localhost:8081"
-	DEFAULT_NLU_API_ENDPOINT   = "http://localhost:8082"
-	DEFAULT_ADDRESS            = "0.0.0.0"
-	DEFAULT_PORT               = 8080
+	DEFAULT_MORTY_CONTROLLER_ENDPOINT = "http://localhost:8083"
+	DEFAULT_MORTY_REGISTRY_ENDPOINT   = "http://localhost:8081"
+	DEFAULT_NLU_API_ENDPOINT          = "http://localhost:8082"
+	DEFAULT_ADDRESS                   = "0.0.0.0"
+	DEFAULT_PORT                      = 8080
 )
 
 type Config struct {
-	Addr             string `yaml:"addr"`
-	Port             int    `yaml:"port"`
-	MortyRegistryEndpoint string `yaml:"mortyregistryendpoint"`
-	NluApiEndpoint   string `yaml:"nluapiendpoint"`
+	Addr                    string `yaml:"addr"`
+	Port                    int    `yaml:"port"`
+	MortyControllerEndpoint string `yaml:"mortycontrollerendpoint"`
+	MortyRegistryEndpoint   string `yaml:"mortyregistryendpoint"`
+	NluApiEndpoint          string `yaml:"nluapiendpoint"`
 }
 
 func Load() (*Config, error) {
@@ -34,10 +36,11 @@ func Load() (*Config, error) {
 		EnvPrefix:  "POLYXIA_GATEWAY",
 
 		Default: &Config{
-			MortyRegistryEndpoint: DEFAULT_MORTY_API_ENDPOINT,
-			NluApiEndpoint:   DEFAULT_NLU_API_ENDPOINT,
-			Addr:             DEFAULT_ADDRESS,
-			Port:             DEFAULT_PORT,
+			MortyRegistryEndpoint:   DEFAULT_MORTY_REGISTRY_ENDPOINT,
+			MortyControllerEndpoint: DEFAULT_MORTY_CONTROLLER_ENDPOINT,
+			NluApiEndpoint:          DEFAULT_NLU_API_ENDPOINT,
+			Addr:                    DEFAULT_ADDRESS,
+			Port:                    DEFAULT_PORT,
 		},
 	})
 	if err != nil {

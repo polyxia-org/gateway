@@ -24,8 +24,9 @@ Flow without NLU:
 
 ```bash
 # Example values
-export POLYXIA_GATEWAY_MORTY_API_ENDPOINT="http://localhost:8081"
-export POLYXIA_GATEWAY_NLU_API_ENDPOINT="http://localhost:8082"
+export POLYXIA_GATEWAY_MORTYREGISTRYENDPOINT="http://localhost:8081"
+export POLYXIA_GATEWAY_MORTYCONTROLLERENDPOINT="http://localhost:8081"
+export POLYXIA_GATEWAY_NLUAPIENDPOINT="http://localhost:8082"
 export POLYXIA_GATEWAY_ADDR="localhost"
 export POLYXIA_GATEWAY_PORT="8080"
 ```

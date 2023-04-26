@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/morty-faas/controller/pkg/client"
 )
 
 const (
@@ -25,7 +26,8 @@ const (
 
 type (
 	Server struct {
-		cfg *config.Config
+		cfg         *config.Config
+		mortyClient *client.APIClient
 	}
 
 	APIError struct {
@@ -45,8 +47,21 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 
+	// log cfg
+	log.Debugf("Morty Controller Endpoint", cfg.MortyControllerEndpoint)
+	log.Debugf("Morty Registry Endpoint", cfg.MortyRegistryEndpoint)
+
+	// Init Morty client to communicate with the Morty controller
+	morty := client.NewAPIClient(&client.Configuration{
+		Servers: client.ServerConfigurations{
+			client.ServerConfiguration{
+				URL: cfg.MortyControllerEndpoint,
+			},
+		}})
+
 	server := &Server{
-		cfg: cfg,
+		cfg:         cfg,
+		mortyClient: morty,
 	}
 
 	return server, nil
