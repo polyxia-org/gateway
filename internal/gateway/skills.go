@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	mortyClient "github.com/morty-faas/controller/pkg/client"
+	mortyClient "github.com/morty-faas/morty/pkg/client/controller"
 	log "github.com/sirupsen/logrus"
 )
 
