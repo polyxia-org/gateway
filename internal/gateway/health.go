@@ -16,8 +16,16 @@ const (
 
 func (s *Server) HealthcheckHandler(w http.ResponseWriter, _ *http.Request) {
 
-	// check is morty is up
+	// check is morty registry is up
 	_, err := http.Get(s.cfg.MortyRegistryEndpoint + "/healthz")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(&healthcheck{Status: outOfService})
+		return
+	}
+
+	// check is morty controller is up
+	_, err = http.Get(s.cfg.MortyControllerEndpoint + "/_/health")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&healthcheck{Status: outOfService})
