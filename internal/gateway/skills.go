@@ -48,7 +48,7 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Debugf("Handling skill creation on Morty")
-	mortyFunctionRegistryResp, err := handleArchive(s.cfg.MortyApiEndpoint, r, name)
+	mortyFunctionRegistryResp, err := handleArchive(s.cfg.MortyRegistryEndpoint, r, name)
 	if err != nil {
 		log.Error(err)
 		s.APIErrorResponse(w, makeAPIError(http.StatusInternalServerError, err))
