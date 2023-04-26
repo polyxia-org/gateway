@@ -16,8 +16,8 @@ const (
 type Config struct {
 	Addr             string `yaml:"addr"`
 	Port             int    `yaml:"port"`
-	MortyApiEndpoint string `yaml:"morty_api_endpoint"`
-	NluApiEndpoint   string `yaml:"nlu_api_endpoint"`
+	MortyRegistryEndpoint string `yaml:"mortyregistryendpoint"`
+	NluApiEndpoint   string `yaml:"nluapiendpoint"`
 }
 
 func Load() (*Config, error) {
@@ -34,14 +34,14 @@ func Load() (*Config, error) {
 		EnvPrefix:  "POLYXIA_GATEWAY",
 
 		Default: &Config{
-			MortyApiEndpoint: DEFAULT_MORTY_API_ENDPOINT,
+			MortyRegistryEndpoint: DEFAULT_MORTY_API_ENDPOINT,
 			NluApiEndpoint:   DEFAULT_NLU_API_ENDPOINT,
 			Addr:             DEFAULT_ADDRESS,
 			Port:             DEFAULT_PORT,
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("p", err)
 	}
 
 	return cl.Load()
