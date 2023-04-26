@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	mortyClient "github.com/morty-faas/controller/pkg/client"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -53,6 +54,10 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		s.APIErrorResponse(w, makeAPIError(http.StatusInternalServerError, err))
 	}
+	bodyBuf := new(bytes.Buffer)
+	bodyBuf.ReadFrom(mortyFunctionRegistryResp.Body)
+	body := bodyBuf.String()
+	log.Debugf("Morty registry response: %s", body)
 
 	if mortyFunctionRegistryResp.StatusCode != http.StatusOK {
 		log.Warnf("Morty registry creation failed!")
@@ -66,10 +71,31 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Debugf("DELETE", s.cfg.NluApiEndpoint+NLU_SKILLS_ENDPOINT+"/"+name)
 		}
 		log.Debugf(mortyFunctionRegistryResp.Status)
-		bodyBuf := new(bytes.Buffer)
-		bodyBuf.ReadFrom(mortyFunctionRegistryResp.Body)
-		log.Debugf(bodyBuf.String())
+
 		s.JSONResponse(w, mortyFunctionRegistryResp.StatusCode, bodyBuf.String())
+		return
+	}
+
+	imagePath := s.cfg.MortyControllerEndpoint + body
+	imagePath = strings.Replace(imagePath, "\"", "", -1)
+
+	log.Debugf("Asking to Morty client to create the function (skill)")
+	log.Debugf("Name: %s", name)
+	log.Debugf("Image: %s", imagePath)
+	request := s.mortyClient.FunctionApi.CreateFunction(r.Context()).CreateFunctionRequest(mortyClient.CreateFunctionRequest{
+		Name:  &name,
+		Image: &imagePath,
+	})
+	_, res, err := request.Execute()
+	if err != nil {
+		log.Debugf(res.Status)
+		// log body
+		bodyBuf := new(bytes.Buffer)
+		bodyBuf.ReadFrom(res.Body)
+		log.Debugf(bodyBuf.String())
+
+		log.Errorf("Morty client failed to create the function (skill): %s", err)
+		s.APIErrorResponse(w, makeAPIError(http.StatusInternalServerError, err))
 		return
 	}
 
@@ -168,16 +194,6 @@ func handleArchive(MORTY_API_ENDPOINT string, r *http.Request, name string) (*ht
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		bodyString := string(bodyBytes)
-		log.Debugf(bodyString)
 	}
 
 	return resp, nil
