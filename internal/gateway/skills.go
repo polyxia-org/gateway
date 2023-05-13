@@ -83,8 +83,9 @@ func (s *Server) SkillsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Debugf("Name: %s", name)
 	log.Debugf("Image: %s", imagePath)
 	request := s.mortyClient.FunctionApi.CreateFunction(r.Context()).CreateFunctionRequest(mortyClient.CreateFunctionRequest{
-		Name:  &name,
-		Image: &imagePath,
+		Name:    name,
+		Image:   imagePath,
+		Version: "v0.1.0",
 	})
 	_, res, err := request.Execute()
 	if err != nil {
