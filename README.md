@@ -6,15 +6,14 @@ The gateway:
 - Creates a new functions with the Morty Function Registry
 - Creates a new skill with the NLU API
 
-**Today, the gate do not "Create a new skill with the NLU API"** because the NLU API is not ready yet. 
-
 ## Prerequisites
 
 * [Golang](https://go.dev/doc/install) (`>=1.20`)
+* Docker and Docker Compose (for running the Morty Function Registry locally)
 
 ## Getting Started
 
-Flow without NLU:
+Flow:
 
 ![Flow](./docs/flow.svg)
 
@@ -75,64 +74,7 @@ example of good intent name: `get_weather`, `get_quote`, `say_hello`, `order_foo
 
 Also, you can use query parameters those are the slots in your skills. For example, `get_weather` can use a query parameter `place_name` to get the weather of a specific place.
 There is a list of query parameters that you can use in your skills. But you cannot use another query parameter that is not in the list.
-Available slots type:
-```
-currency_name
-personal_info
-app_name
-list_name
-alarm_type
-cooking_type
-time_zone
-media_type
-change_amount
-transport_type
-drink_type
-news_topic
-artist_name
-weather_descriptor
-transport_name
-player_setting
-email_folder
-music_album
-coffee_type
-meal_type
-song_name
-date
-movie_type
-movie_name
-game_name
-business_type
-music_descriptor
-joke_type
-music_genre
-device_type
-house_place
-place_name
-sport_type
-podcast_name
-game_type
-timeofday
-business_name
-time
-definition_word
-audiobook_author
-event_name
-general_frequency
-relation
-color_type
-audiobook_name
-food_type
-person
-transport_agency
-email_address
-podcast_descriptor
-order_type
-ingredient
-transport_descriptor
-playlist_name
-radio_name
-```
+Available slots type list is [here](./docs/slot_types.txt).
 
 1. Create a new skill using the Morty CLI:
     
